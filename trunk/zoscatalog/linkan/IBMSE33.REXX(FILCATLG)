@@ -1,0 +1,38 @@
+/* REXX PROGRAM*/                                                       00010010
+/**********************************************************************/00011007
+/* THIS PROGRAM IS USED TO FILTER CATALOG INFORMATION                 */00020007
+/*                                                                    */00020108
+/* INPUT: A DATASET WHICH INCLUDES OUTPUT FROM REXX PROGRAM GETCATLG  */00020208
+/* OUTPUT: A DATASET WHICH FILTER UNSTASFIED DATASETS                 */00020308
+/**********************************************************************/00021007
+/**********************************************************************/00022010
+/* DEFINE VARIALBE                                                    */00030007
+/**********************************************************************/00031010
+INPUT=IBMSE33.OUTPUT                                                    00040010
+OUTPUT=IBMSE33.FILTER.OUTPUT                                            00041010
+/**********************************************************************/00042010
+/* READ DATA FROM A DATASET                                           */00043010
+/**********************************************************************/00044010
+"ALLOC DATASET('"INPUT"') FILE(INDD) SHR"                               00050010
+"EXECIO * DISKR INDD (STEM INPUT. FINIS"                                00060010
+"FREE FI(INDD)"                                                         00070010
+"NEWSTACK"                                                              00071010
+/**********************************************************************/00072010
+/* PROCESS DATA                                                       */00073010
+/**********************************************************************/00074010
+ DO I=1 TO INPUT.0                                                      00080000
+     STRTYPE=SUBSTR(INPUT.I,1,8) /* DATASET TYPE   */                   00090000
+     IF STRTYPE="NONVSAM " THEN                                         00091005
+       QUEUE INPUT.I                                                    00091105
+     ELSE DO                                                            00093005
+       MSG="DATA SETS:" SUBSTR(INPUT.I,9,44)||" IS NONVSAM DATA SETS"   00094005
+       SAY MSG                                                          00095008
+     END                                                                00096009
+ END                                                                    00110001
+/**********************************************************************/00111010
+/* WRITE DATA INTO A DATASET                                          */00112010
+/**********************************************************************/00113010
+ "ALLOC DATASET('"OUTPUT"') FILE(OUTDD) OLD REUSE"                      00120006
+ "EXECIO * DISKW OUTDD (FINIS"                                          00130006
+ "FREE FI(OUTDD)"                                                       00140006
+ "DELSTACK"                                                             00150006                                                                 00080006

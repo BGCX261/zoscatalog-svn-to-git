@@ -1,0 +1,37 @@
+)ATTR
+/**********************************************************************/
+/*               LICENSED MATERIALS - PROPERTY OF IBM                 */
+/*         (C) COPYRIGHT IBM CORP. 2010 ALL RIGHTS RESERVED           */
+/**********************************************************************/
+  % TYPE(TEXT) COLOR(WHITE) CAPS(OFF) SKIP(ON)
+  * TYPE(TEXT) CAPS(OFF) INTENS(HIGH) COLOR(GREEN) SKIP(ON)
+  ! TYPE(TEXT) CAPS(OFF) INTENS(HIGH) COLOR(BLUE) SKIP(ON)
+  _ TYPE(INPUT) PAD(' ') INTENS(HIGH) COLOR(TURQ)
+  @ TYPE(NEF) CAPS(ON) PADC(USER)
+  # TYPE(OUTPUT) PAD(' ') CAPS(OFF) COLOR(YELLOW) JUST(LEFT)
+  ? TYPE(NT)
+
+)BODY WIDTH(80) CMD(ZCMD) EXPAND(//)
+*
+!/ /MINIBANK CONTROL PANEL/ /
+*
+*COMMAND ===>@ZCMD
+*
+%Please select one of the following, then press ENTER
+*
+*
+*1. Choose Schema                     !Current Schema:#CPD
+*2. Minibank Database Utilities
+*3. Minibank Data Utilities
+*4. Minibank Workload Utilities
+*5. Minibank System Status Control
+*6. System Parameter Setting Config
+*7. Minibank Batch Control
+*8. EXIT
+*
+*
+*
+%/ /Licensed Materials - Property of IBM/ /
+%/ /(C) Copyright IBM Corp. 2010 All Rights Reserved/ /
+)PROC
+)END

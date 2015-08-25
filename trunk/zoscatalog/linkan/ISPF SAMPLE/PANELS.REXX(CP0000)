@@ -1,0 +1,172 @@
+/*REXX*/
+/**********************************************************************/
+/*               LICENSED MATERIALS - PROPERTY OF IBM                 */
+/*         (C) COPYRIGHT IBM CORP. 2010 ALL RIGHTS RESERVED           */
+/**********************************************************************/
+/*************************************************/
+/*AUTHOR.    CHU SHI/CHINA/CONTR/IBM.            */
+/*************************************************/
+Address TSO
+"profile noprefix"
+
+/*************************************************/
+/*SYSCONF is the system config data set          */
+/*DAGCONF is the data generation config data set */
+/*************************************************/
+SYSCONF="'MINIBANK.CNTLPANL.SYSCONF'"
+DAGCONF="'MINIBANK.DATAGEN.CONFIG(CONFIG)'"
+
+
+/*************************************************/
+/*If SYSCONF Does not exist, create one          */
+/*************************************************/
+DSEXIST=Listdsi(SYSCONF)
+If DSEXIST\=0 Then Do
+  Say 'Begin Allocatting 'SYSCONF
+  "ALLOCATE  DATASET("SYSCONF") NEW CATALOG",
+  "DSORG(PS) BLKSIZE(800) RECFM(F,B) LRECL(80)",
+  "CYLINDERS  SPACE(10,2)"
+  Say 'End Allocatting 'SYSCONF
+End
+Else Do
+  "ALLOC DA("SYSCONF") F(SYSCONF) MOD REU"
+  If RC > 4 Then Do
+    Say "Control panel already in use!"
+    RC = Cleanup(4)
+  End
+End
+
+/*************************************************/
+/*CUPHDI stands for the curren phisical dedigh   */
+/*         1:Poor 2.Default 3.Good               */
+/*It's value is fetched from SYSCONF data set    */
+/*************************************************/
+OUTPUT. = 0
+OUTPUT.0 = 0
+i = 1
+CUPHDI = 0
+
+"ALLOC F(SCFDS) DA("SYSCONF") OLD"
+"EXECIO * DISKR SCFDS ( FINIS STEM OUTPUT."
+Do While i <= output.0
+  If POS('CURRENT_SCHEMA' , OUTPUT.i) > 0 Then Do
+     leave
+  End
+  i = i+1
+End
+If i > Output.0 Then Do
+  CUPHDI = 2
+End
+Else Do
+  CUPHDI = OUTPUT.i
+  Parse Var CUPHDI temp11 '=' CUPHDI .
+End
+"FREE F(SCFDS)"
+
+
+/*************************************************/
+/*DEFINE LIBARARIES                              */
+/*************************************************/
+Address ISPEXEC
+"CONTROL ERRORS RETURN"
+
+panllib = 'MINIBANK.PANELS'
+rexxlib = 'MINIBANK.PANELS.REXX'
+"ISPEXEC LIBDEF ISPPLIB DATASET ID('"panllib"')"
+If rc \= 0 Then Do
+   Say "S--> Libdef  failed .RC="rc
+   Say zerrlm
+   RC = Cleanup(8)
+End
+
+/*************************************************/
+/*SEND THE FIRST PANEL                           */
+/*************************************************/
+Do Forever
+  ZCMD = ''
+  /* DECIDE THE CURRENT SCHEMA */
+  Select
+    When CUPHDI = 1 Then Do
+      CPD = 'MINIPS(POOR DESIGN)'
+    End
+    When CUPHDI = 2 Then Do
+      CPD = 'MINIDS(DEFAULT DESIGN)'
+    End
+    When CUPHDI = 3 Then Do
+      CPD = 'MINIGS(GOOD DESIGN)'
+    End
+    Otherwise Do
+      RC = Cleanup(4)
+    End
+  End
+
+
+  /* BEGIN SEND THE FIRST PANEL */
+  Address ISPEXEC
+
+  "DISPLAY PANEL(cp0000P)"
+  If rc > 8 Then Do
+   Say "s--> display failed.rc="rc
+     Say zerrlm
+     RC = Cleanup(8)
+  End
+  If rc = 0 Then Do
+    RC = LENGTH(ZCMD)
+    If RC > 0 Then Do
+      If Pos('EXIT', ZCMD) > 0 Then Do
+        RC = Cleanup(0)
+      End
+      ELSE Do
+        fvar = VALUE(ZCMD)
+        choice = strip(fvar)
+        choice2 = ''
+        If Pos('.', choice) > 0 Then Do
+          Parse Var choice choice '.' choice2 .
+        End
+        Select
+          When  choice = 1 Then Do
+                CUPHDI = CP0100(CUPHDI,SYSCONF)
+          End
+          When  choice = 2 Then Do
+                RC = CP0200(choice2,CUPHDI)
+          End
+          When  choice = 3 Then Do
+                RC = CP0300(choice2,CUPHDI)
+          End
+          When  choice = 4 Then Do
+                RC = CP0400(choice2,CUPHDI)
+          End
+          When  choice = 5 Then Do
+                RC = CP0500(CUPHDI)
+          End
+          When  choice = 6 Then Do
+                RC = CP0600(SYSCONF)
+          End
+          When  choice = 7 Then Do
+                RC = CP0700(choice2,CUPHDI)
+          End
+          When  choice = 8 Then Do
+                RC = Cleanup(0)
+          End
+          Otherwise Do
+            RC = ERRPOP("HEY MAN, YOUR INPUT IS WRONG!")
+          End
+        End
+      End
+    End
+  End
+End
+RC = Cleanup(0)
+
+
+
+/*************************************************/
+/*DO THE CLEAN-UP WORK                           */
+/*************************************************/
+
+Cleanup: Procedure Expose Sysconf
+RCCODE = Arg(1)
+  Address TSO
+  "PROFILE PREFIX("||USERID()||")"
+  "FREE F(SYSCONF)"
+  Exit RCCODE

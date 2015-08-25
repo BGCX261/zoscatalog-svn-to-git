@@ -1,0 +1,35 @@
+/* REXX PROGRAM                                                       */00001036
+/**********************************************************************/00001134
+/* THIS PROGRAM IS USED TO COMPARE CATALOG AND VTOC INFORMATION       */00002034
+/*                                                                    */00002137
+/* INPUT: A DATASET WHICH INCLUDES OUTPUT FROM REXX PROGRAM FILCATLG  */00002237
+/* OUTPUT: COMPARATION RESULTS                                        */00002337
+/**********************************************************************/00002434
+                                                                        00002538
+/**********************************************************************/00003137
+/* DEFINE VARIABLE                                                    */00003237
+/**********************************************************************/00003337
+INPUT=IBMSE33.FILTER.OUTPUT                                             00004037
+/**********************************************************************/00005037
+/* READ DATA FROM A DATASET WHICH IS GOT FROM CATALOG                 */00006037
+/**********************************************************************/00007037
+"ALLOC DATASET('"INPUT"') FILE(IND1) SHR"                               00031035
+"EXECIO * DISKR IND1 (STEM INPUT1. FINIS"                               00032035
+"FREE FI(IND1)"                                                         00033035
+/**********************************************************************/00033137
+/* READ DATA FROM A DATASET WHICH IS GOT FROM CATALOG                 */00033237
+/**********************************************************************/00033337
+DO I=1 TO INPUT1.0                                                      00034035
+  STRNAME=SUBSTR(INPUT1.I,9,44)                     /* DATASET NAME   */00051038
+  STRVOL=SUBSTR(INPUT1.I,53,6)                      /* DATASET VOLUME */00052038
+  STR="IBMSE33.LISTV.R"||STRVOL                                         00053035
+  SAY STR                                                               00053135
+  "ALLOC DATASET('"STR"') FILE(INDD) SHR"                               00054035
+  "EXECIO * DISKR INDD (STEM INPUT. FINIS"                              00055037
+  "FREE FI(INDD)"                                                       00056037
+    DO J=1 TO INPUT.0                                                   00057037
+      STRNAME1=SUBSTR(INPUT.J,1,44)                                     00058037
+      IF(STRNAME=STRNAME1) THEN                                         00060037
+        SAY "FIND SUCCESS" J                                            00061037
+    END                                                                 00062037
+END                                                                     00080037

@@ -1,0 +1,23 @@
+)ATTR
+/**********************************************************************/
+/*               LICENSED MATERIALS - PROPERTY OF IBM                 */
+/*         (C) COPYRIGHT IBM CORP. 2010 ALL RIGHTS RESERVED           */
+/**********************************************************************/
+  % TYPE(TEXT) COLOR(WHITE) CAPS(OFF) SKIP(ON)
+  * TYPE(TEXT) CAPS(OFF) INTENS(HIGH) COLOR(GREEN) SKIP(ON)
+  ! TYPE(TEXT) CAPS(OFF) INTENS(HIGH) COLOR(BLUE) SKIP(ON)
+  @ TYPE(NEF) CAPS(ON) PADC(USER)
+)BODY WIDTH(80) CMD(ZCMD) EXPAND(//)
+*
+!/ /CHOOSE PHYSICAL DESIGN/ /
+*
+*COMMAND ===>@ZCMD
+*
+%Please select one of the following, then press ENTER
+*
+*1. MINIPS(Poor Design)
+*2. MINIDS(Default Design)
+*3. MINIGS(Good Design)
+*
+*
+)END
